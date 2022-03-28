@@ -18,16 +18,6 @@ namespace FileCopier
             {
                 DateTime newestDate = FileNamesToDateTimes(userDirectory);
             }
-
-            
-            //foreach (var date in dateTimes)
-            //{
-            //    MessageBox.Show(date.ToString());
-            //}
-
-
-            //sort order info : https://stackoverflow.com/questions/18070517/sort-datetime-list-by-time
-
         }
 
         private static DateTime FileNamesToDateTimes(string userDirectory)
