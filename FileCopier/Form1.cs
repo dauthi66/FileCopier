@@ -21,7 +21,7 @@ namespace FileCopier
             if (Directory.Exists(userDirectory))
             {
                 string newestDate = FindNewestFile(filePaths);
-                CopyFile(filePaths);
+                CopyFile(filePaths, newestDate);
             }
         }
 
@@ -43,7 +43,8 @@ namespace FileCopier
                 }
 
                 //create next date for comparison
-                nextDate = ParseToDateTime(filePaths[i]);
+                string nextDateString = FormatPathToDate(filePaths[i]);
+                nextDate = ParseToDateTime(nextDateString);
 
                 //compare the dates, keep the newest
                 if (newestDate.CompareTo(nextDate) < 0)
@@ -84,9 +85,16 @@ namespace FileCopier
             }
         }
 
-        private static void CopyFile(string[] filePaths)
+        private static void CopyFile(string[] filePaths, string newestDate)
         {
-
+            foreach (var filePath in filePaths)
+            {
+                if (filePath.Contains(newestDate))
+                {
+                    MessageBox.Show("Found" + filePath);
+                    //copy file
+                }
+            }
         }
     }
 }
