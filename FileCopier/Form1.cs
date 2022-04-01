@@ -4,6 +4,9 @@ namespace FileCopier
 {
     public partial class FrmFileCopier : Form
     {
+        const string userDirectory = "C:/Test Folder";
+        const string destinationDirectory = "C:/Test Folder/Copied";
+
         public FrmFileCopier()
         {
             InitializeComponent();
@@ -12,10 +15,9 @@ namespace FileCopier
         private void btnCopyFile_Click(object sender, EventArgs e)
         {
             //TODO: Test all exceptions
+            //TODO: Rename indexOfName variable
 
-            //find file location
-            string userDirectory = "C:/Test Folder";
-
+            //Create array of files from directory
             string[] filePaths = Directory.GetFiles(userDirectory);
 
             if (Directory.Exists(userDirectory))
@@ -27,8 +29,6 @@ namespace FileCopier
 
         private static string FindNewestFile(string[] filePaths)
         {
-            //Create array of files from directory
-
             DateTime nextDate = new();
 
             //Fence post: format string and convert to DateTime. 
@@ -87,12 +87,16 @@ namespace FileCopier
 
         private static void CopyFile(string[] filePaths, string newestDate)
         {
-            foreach (var filePath in filePaths)
+            foreach (string filePath in filePaths)
             {
                 if (filePath.Contains(newestDate))
                 {
-                    MessageBox.Show("Found" + filePath);
-                    //copy file
+                    string fileName = Path.GetFileName(filePath);
+
+                    string sourceFile = Path.Combine(userDirectory, fileName);
+                    string destFile = Path.Combine(destinationDirectory, fileName);
+
+                    File.Copy(sourceFile, destFile, true);
                 }
             }
         }
