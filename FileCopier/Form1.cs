@@ -12,7 +12,6 @@ namespace FileCopier
         private void btnCopyFile_Click(object sender, EventArgs e)
         {
             //TODO: Test all exceptions
-            //TODO: Rename indexOfName variable
 
             string userDirectory = txtUserDirectory.Text;
             //"C:/Test Folder";
@@ -123,7 +122,6 @@ namespace FileCopier
         /// <param name="destinationDirectory">The directory to copy to</param>
         private static void CopyFile(string Directory, string destinationDirectory)
         {
-
         string fileName = Path.GetFileName(Directory);
         string directoryPath = Path.GetDirectoryName(Directory);
 
@@ -132,7 +130,6 @@ namespace FileCopier
         string destFile = Path.Combine(destinationDirectory, fileName);
 
         File.Copy(sourceFile, destFile, true);
-
         }
     }
 }
