@@ -4,9 +4,6 @@ namespace FileCopier
 {
     public partial class FrmFileCopier : Form
     {
-        const string userDirectory = "C:/Test Folder";
-        const string destinationDirectory = "C:/Test Folder/Copied";
-
         public FrmFileCopier()
         {
             InitializeComponent();
@@ -17,30 +14,51 @@ namespace FileCopier
             //TODO: Test all exceptions
             //TODO: Rename indexOfName variable
 
+            string userDirectory = txtUserDirectory.Text;
+            //"C:/Test Folder";
+            string destinationDirectory = txtDestinationDirectory.Text;
+            //"C:/Test Folder/Copied";
+
             //Create array of files from directory
             string[] filePaths = Directory.GetFiles(userDirectory);
 
-            if (Directory.Exists(userDirectory))
+            if (Directory.Exists(userDirectory) && Directory.Exists(destinationDirectory))
             {
-                string newestDate = FindNewestFile(filePaths);
-                CopyFile(filePaths, newestDate);
+                string newestFilePath = FindNewestFilePath(filePaths);
+                CopyFile(newestFilePath, destinationDirectory);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException("One of the given directory paths is not valid");
             }
         }
 
-        private static string FindNewestFile(string[] filePaths)
+        /// <summary>
+        /// Uses an array of file paths and determines which path containes the newest date
+        /// depicted in a specifically named file.
+        /// </summary>
+        /// <param name="filePaths"></param>
+        /// <returns>The directory path containing the file with the newest date in it's name</returns>
+        /// <exception cref="NullReferenceException">When given folder contains no files</exception>
+        private static string FindNewestFilePath(string[] filePaths)
         {
+
+            //check if the array is empty
+            if (!filePaths.Any())
+            {
+                throw new NullReferenceException("There are no files in that folder");
+            }
+
             DateTime nextDate = new();
 
-            //Fence post: format string and convert to DateTime. 
-            string newestDateString = FormatPathToDate(filePaths[0]);
-            DateTime newestDate = ParseToDateTime(newestDateString);
+            //Fence post: save original path, format string and convert to DateTime.
+            string newestDatePath = filePaths[0];
+            string DateOnly = FormatPathToDate(newestDatePath);
+            DateTime newestDate = ParseToDateTime(DateOnly);
 
+            //find newest date using array
             for (int i = 1; i < filePaths.Length; i++)
             {
-                if (!filePaths.Any())
-                {
-                    throw new NullReferenceException("There are no files in that folder");
-                }
 
                 //create next date for comparison
                 string nextDateString = FormatPathToDate(filePaths[i]);
@@ -49,33 +67,46 @@ namespace FileCopier
                 //compare the dates, keep the newest
                 if (newestDate.CompareTo(nextDate) < 0)
                 {   
-                    newestDateString = filePaths[i];
+                    newestDatePath = filePaths[i];
                     newestDate = nextDate;
                 }
             }
 
-            return newestDateString;
+            return newestDatePath;
         }
 
+        /// <summary>
+        /// Turns a specifically formatted (yyyyMMdd) string to a date time
+        /// </summary>
+        /// <param name="dateOnly">String</param>
+        /// <returns>A DateTime version of the string</returns>
+        /// <exception cref="FormatException">When a date does not have the correct format in its name yyyyDDmm </exception>
         private static DateTime ParseToDateTime(string dateOnly)
         {          
-                try
-                {
-                    DateTime date = DateTime.ParseExact(dateOnly, "yyyyMMdd", new CultureInfo("en-US"));
-                    return date;
-                }
-                catch (FormatException)
-                {
-                    throw new FormatException($"The file with date {dateOnly} is not labeled in the correct yyyyMMdd format");
-                }
+            try
+            {
+                DateTime date = DateTime.ParseExact(dateOnly, "yyyyMMdd", new CultureInfo("en-US"));
+                return date;
+            }
+            catch (FormatException)
+            {
+                throw new FormatException($"The file with date {dateOnly} is not labeled in the correct yyyyMMdd format");
+            }
         }
+
+        /// <summary>
+        /// Removes formats a file path to just the date portion of a purposely named file (yyyyMMdd);
+        /// </summary>
+        /// <param name="pathToFormat">The path to turn into a date</param>
+        /// <returns></returns>
+        /// <exception cref="FormatException">When file creator is not using a _ to seperate the file name from the date</exception>
         private static string FormatPathToDate(string pathToFormat)
         {
             if (pathToFormat.Contains("_"))
             {
                 //create string of only dates
-                int indexOfName = pathToFormat.IndexOf("_") + 1;
-                string dateOnly = pathToFormat.Substring(indexOfName, 8);
+                int startOfFileDate = pathToFormat.IndexOf("_") + 1;
+                string dateOnly = pathToFormat.Substring(startOfFileDate, 8);
 
                 return dateOnly;
             }
@@ -85,20 +116,23 @@ namespace FileCopier
             }
         }
 
-        private static void CopyFile(string[] filePaths, string newestDate)
+        /// <summary>
+        /// Uses two directories, one to copy a file from, and one to copy a file to
+        /// </summary>
+        /// <param name="Directory">The directory to copy from</param>
+        /// <param name="destinationDirectory">The directory to copy to</param>
+        private static void CopyFile(string Directory, string destinationDirectory)
         {
-            foreach (string filePath in filePaths)
-            {
-                if (filePath.Contains(newestDate))
-                {
-                    string fileName = Path.GetFileName(filePath);
 
-                    string sourceFile = Path.Combine(userDirectory, fileName);
-                    string destFile = Path.Combine(destinationDirectory, fileName);
+        string fileName = Path.GetFileName(Directory);
+        string directoryPath = Path.GetDirectoryName(Directory);
 
-                    File.Copy(sourceFile, destFile, true);
-                }
-            }
+        //use paths to copy to directories
+        string sourceFile = Path.Combine(directoryPath, fileName);
+        string destFile = Path.Combine(destinationDirectory, fileName);
+
+        File.Copy(sourceFile, destFile, true);
+
         }
     }
 }
